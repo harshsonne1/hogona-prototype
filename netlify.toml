@@ -1,0 +1,8 @@
+# Static site: no build step. The site root opens the clickable prototype.
+[build]
+  publish = "."
+
+[[redirects]]
+  from = "/"
+  to = "/hogona-prototype3.html"
+  status = 200
