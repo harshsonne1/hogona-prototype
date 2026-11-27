@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hogona Prototype 2 · Modern Vernacular</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Rubik:wght@500;600;700;800&family=Noto+Sans+Kannada:wght@500;700&display=swap">
+<style>
+/* Direction 1, "Modern Vernacular": cream ground, marigold, brick red, forest green. Flat screen-print illustration with grain.
+   BMTC blue and Metro purple are kept only where the rider matches them against real signs (route badges, map lines). */
+:root{
+  color-scheme:light;
+  --cream:#FBF4E8;      /* phone ground */
+  --bg:#FFFDF8;         /* cards and sheets */
+  --ink:#1F1A14;
+  --ink2:#6B6157;
+  --hair:#EADFCC;
+  --fill:#F4EAD9;
+  --brand:#B03A26;      /* brick red: primary actions */
+  --brand-tint:#F7E0D6;
+  --forest:#2F4A35;
+  --mari:#F2B45E;
+  --mari-tint:#FCEBD0;
+  --bus:#1C6FC0;
+  --metro:#6E2A96;
+  --mint:#DCE8D3; --mint-ink:#2F4A35;
+  --sun:#F2B45E; --sun-ink:#3A2A08;
+  --page:#EFE6D6;
+  --font:"Figtree","Helvetica Neue",Arial,sans-serif;
+  --disp:"Rubik","Figtree",sans-serif;
+  --kn:"Noto Sans Kannada","Kannada Sangam MN",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--page);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.4;padding:24px 16px}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-align:left;padding:0}
+button:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+p,h1,h2{margin:0}
+a{color:var(--brand);font-weight:700}
+.kn{font-family:var(--kn);font-weight:500}
+.ic{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- page shell ---------- */
+.shell{max-width:1160px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 390px minmax(0,1fr);gap:40px;align-items:start}
+.side-h{font-family:var(--disp);font-weight:800;font-size:30px;letter-spacing:-0.01em;line-height:1.1;margin:8px 0 6px}
+.lede{color:var(--ink2);max-width:36ch;margin-bottom:12px}
+.toggle{display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px;margin:4px 0 14px;cursor:pointer}
+.toggle input{accent-color:var(--brand);width:16px;height:16px}
+.stages{display:flex;flex-direction:column;gap:2px}
+.stages button{display:grid;grid-template-columns:78px 1fr;gap:10px;padding:9px 12px;border-radius:10px;align-items:baseline}
+.stages b{font-weight:700}
+.stages span{color:var(--ink2);font-size:14px}
+.stages button:hover{background:#E6DAC5}
+.stages button[aria-current="true"]{background:var(--forest);color:#fff}
+.stages button[aria-current="true"] span{color:#C9D6C9}
+.note{background:var(--bg);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:16px;margin-top:8px}
+.eyebrow{font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.note h2{font-family:var(--disp);font-weight:700;font-size:24px;letter-spacing:-0.01em;line-height:1.15;text-wrap:balance}
+.note dl{margin:0;display:flex;flex-direction:column;gap:14px}
+.note dt{font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.note dd{margin:3px 0 0}
+.note .new{background:var(--mari-tint);border-radius:12px;padding:12px 14px}
+.note .new dt{color:#8A5A12}
+.ill-list{margin:4px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.ill-list b{display:inline-block;min-width:34px;font-weight:800;color:var(--brand)}
+.pager{display:flex;gap:8px}
+.pager button{flex:1;display:flex;justify-content:center;align-items:center;gap:6px;height:44px;border-radius:999px;background:var(--fill);font-weight:700}
+.pager button:disabled{opacity:.4;cursor:default}
+
+/* ---------- illustration slots ---------- */
+.art{position:relative;margin:0;flex:none}
+.art .ph,.art .ph svg{display:block;width:100%;height:100%}
+.art img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.art.has .ph{visibility:hidden}
+.art figcaption{display:none;position:absolute;left:2px;top:2px;z-index:2;background:var(--ink);color:#fff;font:800 10px/1 var(--font);padding:3px 5px;border-radius:5px;letter-spacing:.02em}
+.labels .art{outline:1.5px dashed rgba(176,58,38,.55);outline-offset:-1px;border-radius:6px}
+.labels .art figcaption{display:block}
+.labels .burst .art{outline:0}
+.labels .burst .art figcaption{left:50%;top:auto;bottom:4px;transform:translateX(-50%)}
+.labels .burst.cap-hi .art figcaption{bottom:30%}
+.art.sm{width:46px;height:46px}
+.art.i40{width:40px;height:40px}
+.art.veh{width:64px;height:40px}
+.art.strip{width:100%;height:96px}
+
+/* character bursting out of a marigold circle, as in the reference */
+.burst{position:relative;width:var(--s);height:var(--s);flex:none;clip-path:inset(-45% -10% 0 -10% round 0 0 50% 50%)}
+.burst::before{content:"";position:absolute;inset:0;border-radius:50%;background:var(--mari)}
+.burst .art{position:absolute;left:-6%;top:-20%;width:112%;height:112%}
+
+/* ---------- phone ---------- */
+.phone{width:390px;height:812px;border-radius:48px;overflow:hidden;background:var(--cream);display:flex;flex-direction:column;position:relative;box-shadow:0 0 0 10px #241C14,0 24px 50px rgba(60,40,10,.22)}
+.scr{flex:1;min-height:0;display:flex;flex-direction:column;position:relative}
+.sb{height:50px;flex:none;display:flex;justify-content:space-between;align-items:flex-end;padding:0 30px 8px;font-weight:700;font-size:16px;position:relative;z-index:3}
+.sb svg{height:13px;width:auto;fill:var(--ink)}
+.sb.over{position:absolute;inset:0 0 auto}
+.body{flex:1;min-height:0;overflow-y:auto;padding:8px 20px 20px;display:flex;flex-direction:column;gap:16px}
+.body > *{flex-shrink:0}
+.h1{font-family:var(--disp);font-weight:700;font-size:27px;letter-spacing:-0.012em;line-height:1.14;text-wrap:balance}
+.h2{font-family:var(--disp);font-weight:700;font-size:18px}
+.sub{color:var(--ink2)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:54px;border-radius:999px;background:var(--brand);color:#fff;font-weight:700;font-size:17px}
+.btn:active{filter:brightness(.92)}
+.link{display:block;width:100%;text-align:center;padding:8px;color:var(--brand);font-weight:700}
+.dock{flex:none;padding:12px 20px 22px;display:flex;flex-direction:column;gap:6px;background:var(--bg)}
+.scr > .dock{background:var(--cream)}
+.back{flex:none;align-self:flex-start;width:40px;height:40px;border-radius:50%;background:var(--bg);display:grid;place-items:center;box-shadow:0 2px 8px rgba(60,40,10,.18)}
+
+/* rows */
+.rows{display:flex;flex-direction:column}
+.row{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--hair);width:100%}
+.rows .row:last-child{border-bottom:0}
+.row b{font-weight:700;display:block}
+.row .sub{font-size:14px;display:block}
+.ico{width:40px;height:40px;border-radius:50%;background:var(--fill);display:grid;place-items:center;font-weight:800}
+.ico.brand{background:var(--brand);color:#fff}
+.ico.done{background:var(--mint);color:var(--mint-ink)}
+.end{text-align:right;font-weight:700;white-space:nowrap}
+.end small{display:block;font-weight:500;font-size:13px;color:var(--ink2)}
+.rb{display:inline-grid;place-items:center;white-space:nowrap;min-width:62px;height:30px;padding:0 8px;border-radius:8px;color:#fff;font-weight:800;font-size:15px}
+.rb.bus{background:var(--bus)} .rb.metro{background:var(--metro)}
+.row.dep{grid-template-columns:auto minmax(0,1fr) auto}
+.row.dep .rb{min-width:72px}
+
+.live,.sched{display:inline-flex;align-items:center;gap:5px;font-weight:700;font-size:12px;border-radius:999px;padding:2px 8px;white-space:nowrap;vertical-align:middle}
+.live{background:var(--mint);color:var(--mint-ink)}
+.live i{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 1.4s infinite}
+.sched{border:1.5px dashed #A89A85;color:var(--ink2);padding:1px 8px}
+@keyframes pulse{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.live i{animation:none}}
+
+.banner{display:flex;gap:12px;align-items:center;border-radius:16px;padding:12px 14px;background:var(--mint);color:var(--mint-ink)}
+.banner b{display:block;font-weight:700}
+.banner.sun{background:var(--sun);color:var(--sun-ink)}
+.banner.big{padding:16px}
+.banner.big b{font-family:var(--disp);font-size:19px;font-weight:700}
+.card{border-radius:18px;overflow:hidden;background:var(--mari-tint);color:var(--sun-ink)}
+.card .art.strip{border-radius:0}
+.card-b{padding:12px 14px 14px}
+.card-b b{display:block;font-family:var(--disp);font-weight:700;font-size:17px}
+
+/* home */
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--bg);color:var(--brand);display:grid;place-items:center;font-weight:800;box-shadow:0 2px 8px rgba(60,40,10,.18)}
+.wmchip .kn{font-weight:700;color:var(--brand);margin-right:6px}
+.wmchip{font-family:var(--disp);font-weight:800}
+.search{display:flex;align-items:center;gap:10px;width:100%;height:58px;border-radius:18px;background:var(--forest);color:var(--mari);padding:0 20px;font-family:var(--disp);font-weight:600;font-size:19px}
+.search .q{flex:1;white-space:nowrap}
+.search .ic{width:24px;height:24px}
+.places{display:grid;grid-template-columns:1.35fr 1fr;gap:10px}
+.place{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:18px;background:var(--bg);box-shadow:0 1px 0 var(--hair)}
+.place b{display:block;font-family:var(--disp);font-weight:700;font-size:17px}
+.place .sub{display:block;font-size:13px}
+.place.main{background:var(--brand-tint)}
+.tabs{flex:none;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--hair);padding:8px 8px 20px;background:var(--bg)}
+.tabs button{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;font-weight:600;color:var(--ink2)}
+.tabs button[aria-current="true"]{color:var(--brand)}
+
+/* map + sheet */
+.map{flex:none;height:300px;background:#F1E7D3;position:relative}
+.map > svg{display:block;width:100%;height:100%}
+.map-ui{position:absolute;inset:54px 16px auto;display:flex;justify-content:space-between;align-items:center;z-index:2}
+.eta{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px;border-radius:999px;background:var(--bg);font-weight:700;box-shadow:0 2px 8px rgba(60,40,10,.18)}
+.eta em{font-style:normal;color:var(--brand)}
+.sheet{flex:1;min-height:0;display:flex;flex-direction:column;margin-top:-22px;border-radius:24px 24px 0 0;background:var(--bg);box-shadow:0 -6px 18px rgba(60,40,10,.08);position:relative;z-index:2}
+.grab{flex:none;width:40px;height:4px;border-radius:2px;background:#DCCFB8;margin:8px auto 0}
+.sheet .body{padding-top:12px}
+.seg{display:flex;gap:4px}
+.seg i{height:4px;border-radius:2px;background:var(--hair)}
+.seg i.done{background:var(--forest)} .seg i.now{background:var(--brand)}
+.step{font-weight:700;font-size:13px;color:var(--ink2)}
+.head{display:flex;flex-direction:column;gap:4px}
+.head.with-art{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end}
+.head.with-art > div:first-child{display:flex;flex-direction:column;gap:4px}
+
+/* trip options */
+.opt{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;padding:12px 14px;border-radius:18px;border:1.5px solid var(--hair);background:var(--bg)}
+.opt.sel{border:2px solid var(--brand);background:var(--brand-tint);padding:11.5px 13.5px}
+.opt b{font-weight:700;display:block}
+.opt .sub{font-size:14px;display:block}
+.tag{display:inline-block;font-weight:800;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--brand);margin-bottom:1px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.label{font-weight:700;font-size:13px;color:var(--ink2);margin-bottom:-8px}
+
+/* ticket, as in the reference: image on top, notches, dashed tear lines */
+.ticket{--tk:var(--bg);--around:var(--cream);background:var(--tk);border-radius:22px;box-shadow:0 1px 0 var(--hair),0 8px 24px rgba(60,40,10,.08);flex:none}
+.ticket.alt{--tk:#F7EDDC;--around:var(--bg);box-shadow:none}
+.tk-img{padding:10px 10px 0}
+.tk-img .art{width:100%;height:132px;border-radius:14px;overflow:hidden}
+.tk-img.short .art{height:96px}
+.tk-pad{padding:14px 18px}
+.cut{position:relative;height:0;border-top:2px dashed var(--hair);margin:4px 18px}
+.cut::before,.cut::after{content:"";position:absolute;top:-12px;width:22px;height:22px;border-radius:50%;background:var(--around)}
+.cut::before{left:-30px} .cut::after{right:-30px}
+.tk-foot{display:flex;gap:12px;align-items:center;color:var(--mint-ink)}
+.tk-foot b{display:block}
+.tk-foot .sub{display:block;font-size:14px}
+
+/* timeline */
+.tl{display:flex;flex-direction:column}
+.tl-i{display:grid;grid-template-columns:44px 16px minmax(0,1fr);gap:12px}
+.tl-t{font-weight:700;font-variant-numeric:tabular-nums}
+.tl-r{display:flex;flex-direction:column;align-items:center}
+.tl-r i{width:14px;height:14px;border-radius:50%;border:3px solid var(--c,var(--ink));background:var(--tk,#fff);flex:none;margin-top:4px}
+.tl-r u{flex:1;width:4px;background:var(--c,var(--hair));border-radius:2px;margin:3px 0;min-height:20px}
+.tl-r u.dot{background:repeating-linear-gradient(#BFB19B 0 4px,transparent 4px 9px);width:3px}
+.tl-b{padding-bottom:16px}
+.tl-b b{font-weight:700;display:block}
+.tl-b .sub{display:block;font-size:14px}
+.pay{margin-top:8px;background:var(--fill);border-radius:10px;padding:9px 12px;font-size:14px}
+
+/* destination board stays literal: the rider matches it against the real bus */
+.led{background:#17130F;border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:14px;color:#FFB321}
+.led .n{font-weight:900;font-size:34px;line-height:1}
+.led .d{display:flex;flex-direction:column;line-height:1.2;font-weight:800;font-size:17px;letter-spacing:.03em;text-transform:uppercase}
+.led .d .kn{font-weight:700;font-size:17px;letter-spacing:0}
+.cap{font-size:13px;color:var(--ink2);margin-top:-10px}
+
+/* stops */
+.stops{display:flex;flex-direction:column}
+.stop{display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:14px;align-items:center;min-height:32px;position:relative;color:var(--ink2)}
+.stop::before{content:"";position:absolute;left:5px;top:-50%;height:100%;width:4px;background:var(--hair)}
+.stop:first-child::before{display:none}
+.stop i{width:14px;height:14px;border-radius:50%;border:3px solid #CDBFA8;background:var(--bg);position:relative;z-index:1}
+.stop.past i{background:var(--c);border-color:var(--c)}
+.stop.past::before,.stop.here::before{background:var(--c)}
+.stop.here{color:var(--ink);font-weight:700}
+.stop.here i{border-color:var(--c);box-shadow:0 0 0 4px var(--mari-tint)}
+.stop.last{color:var(--ink);font-weight:700}
+.stop small{font-weight:700;font-size:12px;color:var(--brand)}
+
+/* arrive */
+.celebrate{flex:none;height:262px;position:relative;background-color:var(--cream);background-image:var(--leaf);background-size:64px 64px;display:flex;justify-content:center;align-items:flex-end}
+.celebrate .burst{margin-bottom:-6px}
+.feel{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.feel button{height:46px;border-radius:999px;border:1.5px solid var(--hair);text-align:center;font-weight:700}
+.feel button[aria-pressed="true"]{border:2px solid var(--brand);background:var(--brand-tint);color:var(--brand)}
+
+@media (max-width:1100px){
+  .shell{grid-template-columns:minmax(0,1fr);justify-items:center;gap:20px}
+  .side{width:100%;max-width:430px}
+  .lede{max-width:none}
+  .stages{flex-direction:row;overflow-x:auto;gap:6px;padding-bottom:4px}
+  .stages button{display:block;flex:none;padding:8px 14px;background:var(--bg);border-radius:999px}
+  .stages span{display:none}
+  .phone{width:100%;max-width:430px;height:780px;border-radius:32px;box-shadow:0 0 0 1px var(--hair)}
+}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- screen-print grain, applied only inside illustration shapes -->
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" stitchTiles="stitch" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.12  0 0 0 0 0.08  0 0 0 0 0.04  1.5 0 0 0 -0.74" result="s"/>
+      <feComposite in="s" in2="SourceGraphic" operator="in" result="g"/>
+      <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="g"/></feMerge>
+    </filter>
+  </defs>
+  <symbol id="i-bus" viewBox="0 0 24 24"><rect x="4" y="3.5" width="16" height="14" rx="3"/><path d="M4 11h16M8 17.5V20M16 17.5V20M8 14.3h.01M16 14.3h.01"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M4.5 12.5l5 5 10-11"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11.5a7 7 0 0 0-14 0C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20.5h4"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M6.5 4h11a1 1 0 0 1 1 1v15l-6.5-4.5L5.5 20V5a1 1 0 0 1 1-1z"/></symbol>
+  <symbol id="i-down2" viewBox="0 0 24 24"><path d="M12 4v11M7.5 11l4.5 4.5 4.5-4.5M5 20h14"/></symbol>
+</svg>
+
+<div class="shell">
+  <aside class="side">
+    <p class="eyebrow">Direction 1 · Modern Vernacular</p>
+    <h1 class="side-h">Hogona</h1>
+    <p class="lede">Ananya rides from Marathahalli to her office in Indiranagar: one bus, one metro, 49 minutes. Rough art marks where each illustration goes. <a href="hogona-prototype.html">Compare with v1</a></p>
+    <label class="toggle"><input type="checkbox" id="lbl" checked> Show illustration slots and numbers</label>
+    <nav class="stages" id="stages" aria-label="Journey stages"></nav>
+  </aside>
+  <main class="phone" id="phone"></main>
+  <aside class="side"><div class="note" id="note"></div></aside>
+</div>
+
+<script>
+const ic = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
+const live = `<span class="live"><i></i>Live</span>`;
+const sched = `<span class="sched">Scheduled</span>`;
+const sb = (t, over) => `<div class="sb ${over?'over':''}"><span>${t}</span><svg viewBox="0 0 66 13" aria-hidden="true"><rect x="0" y="8" width="3" height="5" rx="1"/><rect x="5" y="6" width="3" height="7" rx="1"/><rect x="10" y="3" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="13" rx="1"/><path d="M24 5a9 9 0 0 1 13 0l-1.6 1.7a6.6 6.6 0 0 0-9.8 0zM27 8a5 5 0 0 1 7 0l-3.5 3.6z"/><rect x="43" y="1" width="20" height="11" rx="3.2"/><rect x="64" y="4.5" width="2" height="4" rx="1"/></svg></div>`;
+
+/* ---------- illustration list: numbers match the brief; files dropped into illustrations/ replace the rough art ---------- */
+const LIST = {
+  '01':['ananya-wave','Ananya waving (hero)'], '02':['ananya-walk','Ananya walking with phone'], '03':['ananya-wait','Ananya waiting at the stop'],
+  '04':['ananya-ride','Ananya on the bus, headphones'], '05':['ananya-metro','Ananya holding the metro handle'], '06':['ananya-arrive','Ananya with filter coffee'],
+  '07':['ananya-shrug','Ananya, calm shrug'], '08':['conductor','BMTC conductor'], '09':['bus','BMTC bus'], '10':['metro','Purple Line train'],
+  '11':['auto','Auto rickshaw'], '12':['cab','Cab'], '13':['bus-metro','Bus + metro combo'], '14':['markers','Top-down map marker'],
+  '15':['scene-stop','Marathahalli Bridge stop, Kalamandir side'], '16':['scene-skywalk','Tin Factory skywalk to the metro'], '17':['scene-office','100 Feet Road, Indiranagar'],
+  '18':['scene-journey','Journey scene, ticket hero'], '19a':['spot-home','Home spot'], '19b':['spot-work','Work spot'], '20':['spot-pay','Coins + UPI'],
+  '21':['spot-qr','QR metro ticket'], '22':['spot-buzz','Phone buzzing'], '23':['spot-toy','Channapatna toy (savings)'], '24':['pattern-leaf','Leaf tile pattern']
+};
+const art = (n, s, cls='') => {
+  const f = `illustrations/${n.replace(/[ab]$/,'')}-${LIST[n][0]}`;
+  return `<figure class="art ${cls}" data-n="${n}"><div class="ph">${s}</div><img alt="" src="${f}.png" onload="this.parentNode.classList.add('has')" onerror="if(!this.dataset.t){this.dataset.t=1;this.src='${f}.svg'}else this.remove()"><figcaption>#${n}</figcaption></figure>`;
+};
+
+/* ---------- rough placeholder art (flat, grained) ---------- */
+const C = {cream:'#F6E7CC',mari:'#F2B45E',mari2:'#E39A3B',brick:'#B03A26',brick2:'#8E2C1C',forest:'#2F4A35',forest2:'#4E7A55',skin:'#B97A50',skin2:'#93583A',hair:'#2A1A12',ink:'#1F1A14',steel:'#C9C1B3',blue:'#1C6FC0',purple:'#6E2A96',khaki:'#BC9E62',white:'#FFFDF5',glass:'#34404A',terra:'#C8693F',road:'#D8C6A4'};
+const svg = (vb, s, slice) => `<svg viewBox="${vb}" ${slice?'preserveAspectRatio="xMidYMid slice"':''} aria-hidden="true"><g filter="url(#grain)">${s}</g></svg>`;
+
+function person(p){
+  const con = p==='conductor', top = con?C.khaki:C.brick;
+  const arm = (x1,y1,x2,y2)=>`<path d="M${x1} ${y1}L${x2} ${y2}" stroke="${top}" stroke-width="22" stroke-linecap="round"/><circle cx="${x2}" cy="${y2}" r="10" fill="${C.skin}"/>`;
+  let back='', front='';
+  if(p==='wave')  front = arm(150,166,178,94);
+  if(p==='wait')  front = arm(152,166,150,66);
+  if(p==='metro'){ back = `<path d="M166 0V20" stroke="${C.steel}" stroke-width="4"/><circle cx="166" cy="30" r="11" fill="none" stroke="${C.ink}" stroke-width="5"/>`; front = arm(150,166,166,44); }
+  if(p==='walk')  front = `<path d="M56 176L102 160" stroke="${top}" stroke-width="22" stroke-linecap="round"/><rect x="98" y="132" width="20" height="34" rx="4" fill="${C.ink}" transform="rotate(12 108 150)"/><circle cx="104" cy="160" r="10" fill="${C.skin}"/>`;
+  if(p==='shrug') front = arm(48,170,14,140)+arm(152,170,186,140);
+  if(p==='arrive') front = arm(52,182,90,170)+arm(148,182,110,170)+`<path d="M87 138h26l-4 32H91z" fill="${C.steel}"/><ellipse cx="100" cy="138" rx="13" ry="3.5" fill="#E8D3B0"/><path d="M78 168h44l-5 11H83z" fill="${C.steel}"/><path d="M96 128c-4-6 4-8 0-14M104 128c-4-6 4-8 0-14" fill="none" stroke="${C.white}" stroke-width="2.5" stroke-linecap="round" opacity=".8"/>`;
+  if(p==='ride')  front = `<path d="M64 84a36 42 0 0 1 72 0" fill="none" stroke="${C.ink}" stroke-width="6"/><rect x="58" y="78" width="13" height="24" rx="6" fill="${C.mari}"/><rect x="129" y="78" width="13" height="24" rx="6" fill="${C.mari}"/>`;
+  if(con) front = `<path d="M54 180L94 168" stroke="${top}" stroke-width="22" stroke-linecap="round"/><rect x="86" y="146" width="36" height="26" rx="5" fill="${C.forest}"/><rect x="92" y="151" width="24" height="8" rx="2" fill="${C.mari}"/><circle cx="94" cy="168" r="10" fill="${C.skin}"/>`;
+  const hairBack = con?'':`<path d="M64 96c-6-44 16-66 38-66s44 20 38 62c-2 16-4 30-8 42H72c-4-12-7-24-8-38z" fill="${C.hair}"/>`;
+  const body = `<path d="M28 200c0-44 26-66 72-66s72 22 72 66z" fill="${top}"/>` + (con
+    ? `<path d="M100 138v62" stroke="${C.ink}" stroke-opacity=".25" stroke-width="2"/><rect x="118" y="156" width="22" height="16" rx="3" fill="none" stroke="${C.ink}" stroke-opacity=".25" stroke-width="2"/>`
+    : `<path d="M66 140c20 20 40 40 54 60H90c-12-18-28-36-40-50z" fill="${C.forest}"/><g fill="${C.mari}"><circle cx="76" cy="160" r="2.5"/><circle cx="90" cy="176" r="2.5"/><circle cx="102" cy="192" r="2.5"/></g>`);
+  const neck = `<path d="M88 108h24v28c-7 7-17 7-24 0z" fill="${C.skin2}"/>`;
+  const head = `<ellipse cx="69" cy="90" rx="5" ry="8" fill="${C.skin}"/><ellipse cx="131" cy="90" rx="5" ry="8" fill="${C.skin}"/><ellipse cx="100" cy="84" rx="31" ry="35" fill="${C.skin}"/>`;
+  const hairFront = con
+    ? `<path d="M68 80c-2-28 14-42 33-42 20 0 34 14 31 40-6-12-18-18-32-18-14 0-26 8-32 20z" fill="${C.hair}"/>`
+    : `<path d="M68 84c-2-30 14-46 34-46 20 0 34 16 31 42-8-14-22-22-36-20-14 1-24 10-29 24z" fill="${C.hair}"/><circle cx="132" cy="58" r="15" fill="${C.hair}"/><g fill="${C.white}"><circle cx="142" cy="47" r="4"/><circle cx="148" cy="55" r="4"/><circle cx="147" cy="64" r="4"/><circle cx="141" cy="72" r="4"/></g>`;
+  const face = `<g fill="${C.ink}"><ellipse cx="88" cy="88" rx="3" ry="3.6"/><ellipse cx="112" cy="88" rx="3" ry="3.6"/></g><path d="M100 91l-3 9h5" fill="none" stroke="${C.skin2}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M89 106q11 9 22 0" fill="none" stroke="${C.ink}" stroke-width="3" stroke-linecap="round"/><g fill="${C.terra}" opacity=".35"><circle cx="80" cy="100" r="5"/><circle cx="120" cy="100" r="5"/></g>`
+    + (con ? `<path d="M88 102q12-8 24 0q-12 5-24 0z" fill="${C.hair}"/>` : `<circle cx="100" cy="74" r="2.2" fill="${C.brick}"/><circle cx="69" cy="101" r="4" fill="${C.mari}"/><circle cx="131" cy="101" r="4" fill="${C.mari}"/>`);
+  return svg('0 0 200 200', back+hairBack+body+neck+head+hairFront+face+front);
+}
+
+const wheel = (x,y,r) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${C.ink}"/><circle cx="${x}" cy="${y}" r="${r*.4}" fill="${C.steel}"/>`;
+const shadow = `<ellipse cx="120" cy="128" rx="108" ry="6" fill="${C.ink}" opacity=".12"/>`;
+const busG = () => `<rect x="12" y="18" width="216" height="96" rx="16" fill="${C.white}"/><path d="M12 84h216v14a16 16 0 0 1-16 16H28a16 16 0 0 1-16-16z" fill="${C.blue}"/><rect x="12" y="78" width="216" height="6" fill="${C.mari}"/>
+  <g fill="${C.glass}"><rect x="26" y="30" width="28" height="36" rx="5"/><rect x="62" y="30" width="28" height="36" rx="5"/><rect x="98" y="30" width="28" height="36" rx="5"/><rect x="136" y="32" width="22" height="64" rx="4"/><rect x="170" y="30" width="46" height="44" rx="6"/></g>
+  <rect x="172" y="22" width="42" height="6" rx="2" fill="${C.ink}"/><rect x="176" y="23.5" width="22" height="3" fill="${C.mari}"/>${wheel(60,114,15)}${wheel(190,114,15)}<rect x="216" y="88" width="10" height="6" rx="2" fill="${C.mari}"/>`;
+const metroG = () => `<path d="M10 26h180c22 0 40 18 40 40v34a14 14 0 0 1-14 14H10z" fill="${C.purple}"/><rect x="10" y="80" width="220" height="7" fill="${C.white}" opacity=".9"/>
+  <g fill="${C.glass}"><rect x="22" y="38" width="34" height="30" rx="5"/><rect x="66" y="38" width="20" height="62" rx="4"/><rect x="96" y="38" width="34" height="30" rx="5"/><rect x="140" y="38" width="20" height="62" rx="4"/></g>
+  <path d="M174 38h16c16 0 28 12 28 28v4h-44z" fill="${C.glass}"/><rect x="10" y="114" width="220" height="5" fill="${C.ink}"/><g fill="${C.ink}"><circle cx="40" cy="120" r="7"/><circle cx="70" cy="120" r="7"/><circle cx="170" cy="120" r="7"/><circle cx="200" cy="120" r="7"/></g>`;
+const autoG = () => `<path d="M58 70V46c0-14 30-28 70-28s58 14 66 30l10 22z" fill="${C.mari}"/><rect x="72" y="46" width="54" height="24" rx="5" fill="${C.glass}" opacity=".55"/><path d="M146 46l40 2 12 22h-52z" fill="${C.glass}"/>
+  <path d="M42 70h164l18 28v8a8 8 0 0 1-8 8H50a8 8 0 0 1-8-8z" fill="${C.forest2}"/><path d="M42 84h182" stroke="${C.forest}" stroke-width="4"/><circle cx="216" cy="94" r="4.5" fill="${C.white}"/>${wheel(78,114,13)}${wheel(194,114,13)}`;
+const cabG = () => `<path d="M18 94c0-12 8-20 20-22l30-6 24-22c6-6 14-8 22-8h46c10 0 18 4 24 12l18 22 18 4c10 2 16 10 16 20v8a8 8 0 0 1-8 8H26a8 8 0 0 1-8-8z" fill="${C.white}"/>
+  <path d="M102 46h38v26H80z" fill="${C.glass}"/><path d="M148 46h20c6 0 10 2 14 8l13 18h-47z" fill="${C.glass}"/><path d="M18 98h218" stroke="${C.brick}" stroke-width="4"/><rect x="200" y="104" width="24" height="10" rx="2" fill="${C.mari}"/>${wheel(64,114,15)}${wheel(182,114,15)}`;
+const veh = k => svg('0 0 240 140', shadow + ({bus:busG,metro:metroG,auto:autoG,cab:cabG}[k])());
+const combo = () => svg('0 0 240 140', `<rect x="128" y="66" width="10" height="62" fill="${C.steel}"/><rect x="200" y="66" width="10" height="62" fill="${C.steel}"/><rect x="96" y="60" width="144" height="8" fill="${C.road}"/>
+  <g transform="translate(104 8) scale(.56)">${metroG()}</g><g transform="translate(0 52) scale(.6)">${busG()}</g>`);
+
+const tree = (x,y,s=1) => `<g transform="translate(${x} ${y}) scale(${s})"><rect x="-4" y="-6" width="8" height="40" fill="${C.skin2}"/><circle cx="0" cy="-20" r="22" fill="${C.forest}"/><circle cx="-16" cy="-6" r="14" fill="${C.forest2}"/><circle cx="16" cy="-8" r="15" fill="${C.forest}"/></g>`;
+const block = (x,y,w,h,f,win='#F6E7CC') => { let s=`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}"/>`; for(let r=y+10;r<y+h-16;r+=20) for(let c=x+8;c<x+w-12;c+=18) s+=`<rect x="${c}" y="${r}" width="9" height="11" fill="${win}" opacity=".85"/>`; return s; };
+const ground = `<rect width="400" height="160" fill="${C.cream}"/><circle cx="336" cy="40" r="22" fill="${C.mari}"/><rect y="126" width="400" height="34" fill="${C.road}"/><path d="M0 143h400" stroke="${C.white}" stroke-width="3" stroke-dasharray="18 14"/>`;
+function scene(k){
+  let s = ground;
+  if(k==='stop') s += block(150,40,150,86,C.brick)+`<rect x="160" y="28" width="130" height="18" rx="3" fill="${C.mari}"/><text x="225" y="41.5" text-anchor="middle" font-family="Rubik,sans-serif" font-weight="800" font-size="12" fill="${C.brick2}">KALAMANDIR</text>`
+    + `<rect x="40" y="78" width="88" height="8" fill="${C.blue}"/><rect x="46" y="86" width="4" height="40" fill="${C.ink}"/><rect x="118" y="86" width="4" height="40" fill="${C.ink}"/><rect x="50" y="108" width="68" height="5" fill="${C.skin2}"/><circle cx="30" cy="70" r="9" fill="${C.blue}"/><rect x="28" y="78" width="4" height="48" fill="${C.ink}"/>`
+    + tree(340,96)+tree(12,96,.8);
+  if(k==='skywalk') s += block(250,34,130,92,C.white,C.glass)+`<rect x="250" y="34" width="130" height="14" fill="${C.purple}"/><circle cx="270" cy="41" r="9" fill="${C.white}"/><text x="270" y="45" text-anchor="middle" font-family="Rubik,sans-serif" font-weight="800" font-size="11" fill="${C.purple}">M</text>`
+    + `<rect x="0" y="62" width="250" height="10" fill="${C.steel}"/><path d="M0 52h250" stroke="${C.ink}" stroke-width="2"/>${[20,60,100,140,180,220].map(x=>`<path d="M${x} 52v10" stroke="${C.ink}" stroke-width="2"/>`).join('')}<rect x="60" y="72" width="10" height="54" fill="${C.steel}"/><rect x="180" y="72" width="10" height="54" fill="${C.steel}"/>`
+    + `<g transform="translate(16 92) scale(.32)">${busG()}</g>`+tree(120,100,.8);
+  if(k==='office') s += block(150,22,110,104,C.forest,C.mari)+`<rect x="40" y="70" width="90" height="56" fill="${C.terra}"/><path d="M36 70h98l-6 14H42z" fill="${C.white}"/>${[0,1,2,3,4,5].map(i=>`<path d="M${42+i*15} 70h8l-1 14h-8z" fill="${C.brick}"/>`).join('')}<rect x="70" y="96" width="30" height="30" fill="${C.glass}"/>`
+    + tree(290,96)+tree(350,92,1.1)+tree(14,98,.8);
+  if(k==='journey') s += block(10,74,40,52,C.terra)+block(54,86,34,40,C.brick)+`<path d="M6 74l24-16 24 16z" fill="${C.brick2}"/>`
+    + `<rect x="150" y="62" width="250" height="8" fill="${C.steel}"/><rect x="200" y="70" width="8" height="56" fill="${C.steel}"/><rect x="300" y="70" width="8" height="56" fill="${C.steel}"/><g transform="translate(206 14) scale(.5)">${metroG()}</g>`
+    + block(330,30,62,96,C.forest,C.mari)+`<g transform="translate(90 84) scale(.4)">${busG()}</g>`+tree(130,104,.7)+tree(320,108,.6);
+  return svg('0 0 400 160', s, true);
+}
+function spot(k){
+  const S = {
+    home:`<path d="M10 50L50 18l40 32z" fill="${C.terra}"/><rect x="18" y="48" width="64" height="38" fill="${C.brick}"/><rect x="42" y="60" width="16" height="26" fill="${C.forest}"/><rect x="24" y="58" width="12" height="12" fill="${C.mari}"/><rect x="64" y="58" width="12" height="12" fill="${C.mari}"/><rect x="12" y="86" width="76" height="6" fill="${C.brick2}"/>`,
+    work:`<path d="M38 30v-6a4 4 0 0 1 4-4h16a4 4 0 0 1 4 4v6" fill="none" stroke="${C.forest}" stroke-width="6"/><rect x="14" y="30" width="72" height="54" rx="9" fill="${C.forest}"/><rect x="14" y="52" width="72" height="6" fill="${C.mari}"/><rect x="44" y="48" width="12" height="14" rx="2" fill="${C.mari2}"/>`,
+    pay:`<rect x="52" y="16" width="34" height="62" rx="7" fill="${C.ink}"/><rect x="57" y="24" width="24" height="24" fill="${C.white}"/><path d="M60 27h6v6h-6zM72 27h6v6h-6zM60 39h6v6h-6zM70 37h4v4h-4zM74 42h4v3h-4z" fill="${C.ink}"/><g fill="${C.mari}"><ellipse cx="34" cy="80" rx="22" ry="7"/><rect x="12" y="66" width="44" height="14"/><ellipse cx="34" cy="66" rx="22" ry="7" fill="${C.mari2}"/></g><text x="34" y="70.5" text-anchor="middle" font-family="Rubik,sans-serif" font-weight="800" font-size="11" fill="${C.brick2}">₹</text>`,
+    qr:`<rect x="18" y="14" width="64" height="74" rx="8" fill="${C.white}"/><rect x="18" y="14" width="64" height="16" rx="8" fill="${C.purple}"/><rect x="18" y="24" width="64" height="6" fill="${C.purple}"/><g fill="${C.ink}"><rect x="28" y="38" width="14" height="14"/><rect x="58" y="38" width="14" height="14"/><rect x="28" y="66" width="14" height="14"/><rect x="48" y="56" width="6" height="6"/><rect x="58" y="62" width="6" height="6"/><rect x="66" y="72" width="6" height="8"/><rect x="48" y="70" width="6" height="10"/></g>`,
+    buzz:`<rect x="34" y="18" width="32" height="62" rx="7" fill="${C.ink}" transform="rotate(-10 50 50)"/><rect x="39" y="26" width="22" height="40" rx="2" fill="${C.mari}" transform="rotate(-10 50 50)"/><path d="M20 36q-8 14 0 28M12 30q-12 20 0 40M80 36q8 14 0 28M88 30q12 20 0 40" fill="none" stroke="${C.brick}" stroke-width="4" stroke-linecap="round"/>`,
+    toy:`<ellipse cx="50" cy="90" rx="30" ry="4" fill="${C.ink}" opacity=".15"/><ellipse cx="50" cy="68" rx="30" ry="22" fill="${C.brick}"/><path d="M21 62h58v8H21z" fill="${C.forest}"/><circle cx="50" cy="40" r="14" fill="${C.mari}"/><circle cx="50" cy="20" r="9" fill="${C.brick}"/><ellipse cx="38" cy="74" rx="6" ry="9" fill="${C.white}" opacity=".35"/>`
+  };
+  return svg('0 0 100 100', S[k]);
+}
+/* leaf tile pattern, drawn for real (#24) */
+const LEAF = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><rect width="80" height="80" fill="#FBF4E8"/><g fill="#2F4A35"><path d="M4 4Q36 4 36 36Q4 36 4 4z"/><path d="M76 4A32 32 0 0 0 44 36H76z"/><path d="M4 76A32 32 0 0 0 36 44H4z"/><path d="M76 76Q44 76 44 44Q76 44 76 76z"/></g></svg>`;
+document.documentElement.style.setProperty('--leaf', `url("data:image/svg+xml,${encodeURIComponent(LEAF)}")`);
+
+/* ---------- state + data ---------- */
+const S = { screen:'home', bus:'500-D', busMins:6, eta:'9:31', late:0, liveBus:true, ride:0, saved:false, feel:null };
+let timer = null;
+
+const BUS = {stops:['Marathahalli Bridge','Doddanekundi','Karthik Nagar','Mahadevapura','B Narayanapura','KR Puram Railway Station','Tin Factory'],
+             pts:[[322,190],[331,173],[329,155],[319,139],[303,127],[281,119],[255,114]]};
+const METRO = {stops:['Benniganahalli','Baiyappanahalli','Swami Vivekananda Road','Indiranagar'],
+               pts:[[232,110],[184,122],[134,136],[86,148]]};
+
+const STAGES = [
+  {id:'home',     stage:'Discover', q:'How do I get there?',        a:'Saved places sit above the fold, so a repeat trip is one tap. Nearby departures show before any search, each marked live or scheduled.', who:'Regular riders, hesitant riders',
+   v2:'The map leads, with Ananya bursting out of a marigold circle as in the reference. Search becomes a dark green bar with marigold text. Home and Work become cards with small illustrations. The savings line gets a Channapatna toy.'},
+  {id:'decide',   stage:'Decide',   q:'Which route is best?',       a:'One trip is pre-selected with the reason it was picked. Two alternatives sit below it. The cab is listed in the same format so the comparison is direct.', who:'Hesitant riders',
+   v2:'Mode squares become vehicle illustrations, like the service tiles in the reference, so each option reads at a glance.'},
+  {id:'preview',  stage:'Prepare',  q:'When should I leave?',       a:'Leave-by time leads. Every leg shows what to pay and how. The steps are saved for use without signal.', who:'Newcomers, hesitant riders',
+   v2:'The plan becomes a ticket: journey scene on top, notched edges and dashed tear lines between sections, as in the reference ticket.'},
+  {id:'walk',     stage:'Walk',     q:'Where exactly is the stop?', a:'Names the side of the road and a landmark, because a stop on the wrong side sends the bus the wrong way.', who:'Newcomers',
+   v2:'A landmark scene sits inside the side-of-road card so the rider recognises the Kalamandir side. Ananya walking sits beside the heading.'},
+  {id:'wait',     stage:'Wait',     q:'When will it arrive?',       a:'The headline is the answer. Live and scheduled times look different everywhere. "I missed it" is always in reach.', who:'Regular riders, hesitant riders',
+   v2:'Ananya waiting sits beside the heading, and the fare row gets a coins-and-UPI drawing. The destination board stays literal on purpose: the rider matches it against the real bus.'},
+  {id:'board',    stage:'Board',    q:'Is this the right bus?',     a:'Two checks against what is physically on the bus, in Kannada and English. The rider confirms boarding.', who:'Newcomers, hesitant riders',
+   v2:'The conductor appears beside the heading, so asking them feels like a normal step.'},
+  {id:'ride',     stage:'Ride',     q:'When do I get off?',         a:'Stops left counts down. One stop before, a yellow alert takes over and the phone buzzes.', who:'Newcomers',
+   v2:'Ananya relaxed with headphones backs up "put your phone away". The map shows a bus marker instead of a dot.'},
+  {id:'transfer', stage:'Transfer', q:'Where do I go next?',        a:'Three numbered steps: walk, ticket, platform direction. The train time is marked scheduled.', who:'Newcomers',
+   v2:'A skywalk scene tops the steps, and the ticket step shows a QR ticket.'},
+  {id:'metro',    stage:'Ride',     q:'When do I get off?',         a:'Same pattern as the bus so nothing has to be relearned, with the door side added.', who:'All riders',
+   v2:'Same pattern as the bus ride, with Ananya holding the metro handle and a train marker on the map.'},
+  {id:'arrive',   stage:'Arrive',   q:'Was it worth it?',           a:'A plain recap of time and money against a cab. Saving the trip makes tomorrow one tap. No points, badges or streaks.', who:'Hesitant riders, regular riders',
+   v2:'A celebration panel with the leaf pattern and Ananya holding filter coffee. The recap becomes a ticket stub topped with an Indiranagar scene.'},
+  {id:'recover',  stage:'Recover',  q:'What if I miss it?',         a:'Reached from any journey screen. Leads with reassurance, then the best next option, then honest fallbacks including an auto.', who:'All riders', branch:true,
+   v2:'A calm shrug keeps the tone light. Each option shows its vehicle, including the auto.'}
+];
+
+/* ---------- map (warm palette; route colours stay BMTC blue and Metro purple) ---------- */
+const path = pts => pts.map((p,i)=>(i?'L':'M')+p[0]+' '+p[1]).join(' ');
+function routeMap(pos, focus, vh, bare){
+  const dim = k => focus && focus!==k ? .35 : 1;
+  const A=BUS.pts[0], T=BUS.pts[6], M=METRO.pts[0], I=METRO.pts[3];
+  const route = bare ? '' : `
+    <path d="M300 210 L${A[0]} ${A[1]}" stroke="#6B6157" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round" opacity="${dim('w1')}"/>
+    <path d="${path(BUS.pts)}" fill="none" stroke="${C.blue}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="${dim('bus')}"/>
+    <path d="M${T[0]} ${T[1]} L${M[0]} ${M[1]}" stroke="#6B6157" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round" opacity="${dim('w2')}"/>
+    <path d="${path(METRO.pts)}" fill="none" stroke="${C.purple}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="${dim('metro')}"/>
+    <path d="M${I[0]} ${I[1]} L64 174" stroke="#6B6157" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round"/>
+    <g fill="#FFFDF8" stroke-width="3"><circle cx="${A[0]}" cy="${A[1]}" r="5" stroke="${C.blue}"/><circle cx="${T[0]}" cy="${T[1]}" r="5" stroke="${C.blue}"/><circle cx="${M[0]}" cy="${M[1]}" r="5" stroke="${C.purple}"/><circle cx="${I[0]}" cy="${I[1]}" r="5" stroke="${C.purple}"/></g>
+    <circle cx="64" cy="174" r="7" fill="${C.ink}"/><circle cx="64" cy="174" r="2.5" fill="#fff"/>
+    <g font-family="Figtree,sans-serif" font-weight="700" font-size="11.5" fill="${C.ink}" paint-order="stroke" stroke="#F1E7D3" stroke-width="4" stroke-linejoin="round">
+      <text x="310" y="196" text-anchor="end">Marathahalli</text><text x="226" y="134">Tin Factory</text><text x="98" y="140">Indiranagar</text><text x="78" y="180">Work</text></g>`;
+  const me = !pos ? '' : vh
+    ? `<g data-n="14" transform="translate(${pos[0]} ${pos[1]}) rotate(${vh.ang})"><rect x="-14" y="-8" width="28" height="16" rx="5" fill="${vh.c}" stroke="#fff" stroke-width="2.5"/><rect x="-6" y="-4.5" width="14" height="9" rx="2" fill="#fff" opacity=".75"/><rect x="9" y="-5" width="3" height="10" rx="1" fill="${C.mari}"/></g>`
+    : `<circle cx="${pos[0]}" cy="${pos[1]}" r="16" fill="${C.brick}" opacity=".18"/><circle cx="${pos[0]}" cy="${pos[1]}" r="7.5" fill="${C.brick}" stroke="#fff" stroke-width="3"/>`;
+  return `<svg viewBox="0 0 390 260" preserveAspectRatio="xMidYMin slice" role="img" aria-label="Route map from Marathahalli to Indiranagar">
+    <rect width="390" height="260" fill="#F1E7D3"/>
+    <path d="M36 260C66 222 30 204 0 198V260z" fill="#CFDCB9"/><path d="M96 0h80c-6 22-30 34-54 30S94 16 96 0z" fill="#CFDCB9"/><circle cx="220" cy="220" r="26" fill="#CFDCB9"/>
+    <path d="M360 112c18-6 30 6 30 22v34c-22 6-46-8-44-30 1-12 6-22 14-26z" fill="#BCD7D3"/>
+    <g fill="none" stroke="#FFFDF8" stroke-linecap="round"><path d="M-10 196C80 176 150 182 226 160S330 96 400 82" stroke-width="9"/><path d="M52 -10C72 60 54 120 88 176s38 60 30 96" stroke-width="7"/><path d="M-10 92C70 84 150 112 236 92" stroke-width="6"/><path d="M190 270C200 232 256 228 296 240s70 8 100-6" stroke-width="7"/><path d="M352 -10C336 70 350 140 334 216" stroke-width="12"/><path d="M150 270C168 226 150 196 178 160" stroke-width="5"/></g>
+    ${route}${me}
+  </svg>`;
+}
+const walkMap = `<svg viewBox="0 0 390 300" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Walk along the service road, cross to the Kalamandir side, the stop is just past the showroom">
+  <rect width="390" height="300" fill="#F1E7D3"/>
+  <rect x="-10" y="128" width="410" height="64" fill="#FFFDF8"/><path d="M-10 160h410" stroke="#E4D7BF" stroke-width="3" stroke-dasharray="16 12"/>
+  <rect x="120" y="192" width="34" height="120" fill="#FFFDF8"/>
+  <rect x="24" y="72" width="84" height="44" rx="8" fill="#E4D7BF"/><rect x="124" y="60" width="112" height="56" rx="8" fill="#EDBFAA"/><rect x="254" y="76" width="118" height="40" rx="8" fill="#E4D7BF"/>
+  <rect x="24" y="206" width="84" height="80" rx="8" fill="#CFDCB9"/><rect x="170" y="206" width="96" height="50" rx="8" fill="#E4D7BF"/><rect x="284" y="206" width="90" height="80" rx="8" fill="#E4D7BF"/>
+  <path d="M137 274 V200 H180 V122 H262" fill="none" stroke="${C.ink}" stroke-width="4" stroke-dasharray="1 9" stroke-linecap="round"/>
+  <circle cx="137" cy="274" r="15" fill="${C.brick}" opacity=".18"/><circle cx="137" cy="274" r="7.5" fill="${C.brick}" stroke="#fff" stroke-width="3"/>
+  <rect x="262" y="98" width="62" height="28" rx="14" fill="${C.blue}"/><path d="M293 126v12" stroke="${C.blue}" stroke-width="4"/>
+  <g font-family="Figtree,sans-serif" font-weight="700">
+    <text x="180" y="92" text-anchor="middle" font-size="12" fill="${C.brick2}">Kalamandir</text>
+    <text x="293" y="117" text-anchor="middle" font-size="12" fill="#fff">Bus stop</text>
+    <text x="368" y="152" text-anchor="end" font-size="11" fill="#6B6157">towards Hebbal →</text>
+    <text x="14" y="182" font-size="11" fill="#6B6157">← towards Silk Board</text></g>
+</svg>`;
+
+/* ---------- shared pieces ---------- */
+const burst = (s, inner, cls='') => `<div class="burst ${cls}" style="--s:${s}px">${inner}</div>`;
+function sheetHead(leg, step, title, sub, who){
+  const w=[4,18,5,8,6];
+  const text = `<p class="step">${step}</p><h1 class="h1">${title}</h1>${sub?`<p class="sub">${sub}</p>`:''}`;
+  return `<div class="grab"></div><div class="body">
+    <div class="seg">${w.map((x,i)=>`<i class="${i<leg?'done':i===leg?'now':''}" style="flex:${x}"></i>`).join('')}</div>
+    ${who?`<div class="head with-art"><div>${text}</div>${burst(92,who)}</div>`:`<div class="head">${text}</div>`}`;
+}
+const mapUi = () => `<div class="map-ui"><button class="back" data-go="home" aria-label="End trip">${ic('x')}</button><span class="eta">Arrive ${S.late?`<em>${S.eta}</em>`:S.eta}${S.late?` · ${S.late} min later`:''}</span></div>`;
+const dock = (label, go, link='') => `<div class="dock"><button class="btn" data-go="${go}">${label}</button>${link}</div>`;
+const wrong = t => `<button class="link" data-go="recover">${t||'Something went wrong'}</button>`;
+const led = () => `<div class="led"><span class="n">${S.bus.replace('-','')}</span><span class="d"><span class="kn">ಹೆಬ್ಬಾಳ</span>Hebbal</span></div>`;
+
+/* ---------- screens ---------- */
+const V = {
+home: () => `<div class="scr">${sb('8:39',1)}
+<div class="map" style="height:318px">${routeMap([300,210],null,null,true)}
+  <div class="map-ui"><span class="eta wmchip"><span class="kn">ಹೋಗೋಣ</span>Hogona</span><span class="avatar">A</span></div>
+  <div style="position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);z-index:1">${burst(196, art('01', person('wave')), 'cap-hi')}</div>
+</div>
+<div class="sheet"><div class="grab"></div><div class="body">
+  <h1 class="h1" style="font-size:24px">Good morning, Ananya</h1>
+  <button class="search" data-go="decide"><span class="q">Where are you going?</span>${ic('arrow')}</button>
+  <div class="places">
+    <button class="place main" data-go="decide">${art('19b', spot('work'),'sm')}<span><b>Work</b><span class="sub">49 min · leave by 8:42</span></span></button>
+    <button class="place">${art('19a', spot('home'),'sm')}<span><b>Home</b><span class="sub">Marathahalli</span></span></button>
+  </div>
+  <div><h2 class="h2">Leaving soon near you</h2><p class="sub">Marathahalli Bridge · 4 min walk</p></div>
+  <div class="rows" style="margin-top:-10px">
+    <button class="row dep" data-go="decide"><span class="rb bus">500-D</span><span><b>Hebbal <span class="kn">ಹೆಬ್ಬಾಳ</span></b><span class="sub">via Tin Factory</span></span><span class="end">6 min<small>${live}</small></span></button>
+    <button class="row dep"><span class="rb bus">335-E</span><span><b>Majestic <span class="kn">ಮೆಜೆಸ್ಟಿಕ್</span></b><span class="sub">via Domlur</span></span><span class="end">11 min<small>${live}</small></span></button>
+    <button class="row dep"><span class="rb bus">500-CA</span><span><b>Banashankari <span class="kn">ಬನಶಂಕರಿ</span></b><span class="sub">via Silk Board</span></span><span class="end">~4 min<small>${sched}</small></span></button>
+  </div>
+  <div class="banner sun">${art('23', spot('toy'),'sm')}<span><b>3 trips this week, about ₹740 less than cabs</b>Your usual 500-D has been on time 4 days out of 5.</span></div>
+</div></div>
+<nav class="tabs"><button aria-current="true">${ic('pin')}Go</button><button>${ic('bus')}Nearby</button><button>${ic('list')}Trips</button><button>${ic('user')}Account</button></nav></div>`,
+
+decide: () => `<div class="scr">${sb('8:39',1)}<div class="map" style="height:240px">${routeMap([300,210])}<div class="map-ui"><button class="back" data-go="home" aria-label="Back">${ic('back')}</button><span class="eta">Marathahalli → Work</span></div></div>
+<div class="sheet"><div class="grab"></div><div class="body">
+  <h1 class="h1" style="font-size:22px">Choose your trip</h1>
+  <div class="opts">
+    <div class="opt sel">${art('13', combo(),'veh')}<span><span class="tag">Recommended</span><b>Bus + Metro</b><span class="sub">8:42 to 9:31 · 1 change</span></span><span class="end">₹45<small>49 min</small></span></div>
+    <div class="opt">${art('09', veh('bus'),'veh')}<span><b>Bus 335-E, direct</b><span class="sub">14 min walk at the end</span></span><span class="end">₹30<small>58 min</small></span></div>
+    <div class="opt">${art('09', veh('bus'),'veh')}<span><b>500-D then 201</b><span class="sub">1 change</span></span><span class="end">₹40<small>62 min</small></span></div>
+  </div>
+  <p class="label">For comparison</p>
+  <div class="opt" style="background:var(--fill);border-color:transparent">${art('12', veh('cab'),'veh')}<span><b>Cab, right now</b><span class="sub">Heavy traffic on Outer Ring Road</span></span><span class="end">₹290–340<small>40–60 min</small></span></div>
+  <div class="banner"><span><b>Bus + Metro costs about ₹250 less</b>and should arrive within 10 minutes of a cab. Need to be in by 9:20? Take the cab today.</span></div>
+</div>${dock('Choose Bus + Metro','preview')}</div></div>`,
+
+preview: () => `<div class="scr">${sb('8:39')}<div class="body">
+  <button class="back" data-go="decide" aria-label="Back">${ic('back')}</button>
+  <div class="ticket">
+    <div class="tk-img">${art('18', scene('journey'))}</div>
+    <div class="tk-pad head"><h1 class="h1">Leave by 8:42</h1><p class="sub">That's in 3 minutes. You'll arrive around 9:31.</p></div>
+    <div class="cut"></div>
+    <div class="tk-pad"><div class="tl">
+      <div class="tl-i"><span class="tl-t">8:42</span><span class="tl-r"><i></i><u class="dot"></u></span><div class="tl-b"><b>Walk 4 min</b><span class="sub">to Marathahalli Bridge stop, Kalamandir side</span></div></div>
+      <div class="tl-i" style="--c:var(--bus)"><span class="tl-t">8:50</span><span class="tl-r"><i></i><u></u></span><div class="tl-b"><b>Bus 500-D towards Hebbal</b><span class="sub">6 stops · 18 min · get off at Tin Factory</span><div class="pay"><b style="display:inline">About ₹25.</b> Pay the conductor by cash or UPI.</div></div></div>
+      <div class="tl-i"><span class="tl-t">9:08</span><span class="tl-r"><i></i><u class="dot"></u></span><div class="tl-b"><b>Walk 5 min</b><span class="sub">to Benniganahalli Metro by the skywalk</span></div></div>
+      <div class="tl-i" style="--c:var(--metro)"><span class="tl-t">~9:17</span><span class="tl-r"><i></i><u></u></span><div class="tl-b"><b>Purple Line towards Challaghatta</b><span class="sub">3 stops · 8 min · get off at Indiranagar</span><div class="pay"><b style="display:inline">About ₹20.</b> Buy a QR ticket at the counter or on WhatsApp.</div></div></div>
+      <div class="tl-i"><span class="tl-t">9:25</span><span class="tl-r"><i></i><u class="dot"></u></span><div class="tl-b"><b>Walk 6 min</b><span class="sub">to 100 Feet Road</span></div></div>
+      <div class="tl-i"><span class="tl-t">9:31</span><span class="tl-r"><i style="background:var(--ink)"></i></span><div class="tl-b" style="padding-bottom:0"><b>Work</b></div></div>
+    </div></div>
+    <div class="cut"></div>
+    <div class="tk-pad tk-foot">${ic('down2')}<span><b>Saved to your phone</b><span class="sub">These steps work without signal.</span></span></div>
+  </div>
+</div>${dock('Start trip','walk')}</div>`,
+
+walk: () => `<div class="scr">${sb('8:42',1)}<div class="map" style="height:250px">${walkMap}${mapUi()}</div>
+<div class="sheet">${sheetHead(0,'Step 1 of 5 · 4 min walk','Walk to Marathahalli Bridge stop','',art('02', person('walk')))}
+  <div class="card">${art('15', scene('stop'),'strip')}<div class="card-b"><b>Stand on the Kalamandir side</b>Buses on this side go towards Hebbal. The stop across the road goes the other way.</div></div>
+  <div class="rows"><div class="row dep"><span class="rb bus">500-D</span><span><b>6 min away</b><span class="sub">You have time. No need to rush.</span></span><span class="end"><small>${live}</small></span></div></div>
+</div>${dock(`I'm at the stop`,'wait',wrong())}</div></div>`,
+
+wait: () => `<div class="scr">${sb('8:46',1)}<div class="map" style="height:230px">${routeMap(BUS.pts[0],'bus')}${mapUi()}</div>
+<div class="sheet">${sheetHead(1,'Step 2 of 5 · At Marathahalli Bridge',`${S.bus} arrives in ${S.liveBus?'':'about '}${S.busMins} min ${S.liveBus?live:sched}`,'',art('03', person('wait')))}
+  ${led()}<p class="cap">Look for this on the front of the bus.${S.liveBus?'':' This time is from the timetable, so it may be a few minutes off.'}</p>
+  <div class="rows"><div class="row">${art('20', spot('pay'),'i40')}<span><b>Keep about ₹25 ready</b><span class="sub">Tell the conductor "Tin Factory". Cash or UPI.</span></span><span></span></div>
+    <div class="row dep"><span class="rb bus">500-D</span><span><b>The one after is in 15 min</b><span class="sub">So missing this one is not a problem.</span></span><span class="end"><small>${sched}</small></span></div></div>
+</div>${dock('The bus is here','board',wrong('I missed it'))}</div></div>`,
+
+board: () => `<div class="scr">${sb('8:50',1)}<div class="map" style="height:230px">${routeMap(BUS.pts[0],'bus')}${mapUi()}</div>
+<div class="sheet">${sheetHead(1,'Step 2 of 5 · Boarding','Check two things before you step on','',art('08', person('conductor')))}
+  ${led()}
+  <div class="rows">
+    <div class="row"><span class="ico">1</span><span><b>The number is ${S.bus}</b><span class="sub">On the front and beside the door.</span></span><span></span></div>
+    <div class="row"><span class="ico">2</span><span><b>The board says Hebbal</b><span class="sub">Silk Board or Banashankari means the wrong direction.</span></span><span></span></div>
+    <div class="row"><span class="ico">?</span><span><b>Not sure? Ask the conductor</b><span class="sub">"Tin Factory <span class="kn">ಹೋಗುತ್ತಾ?</span>" (hogutta?)</span></span><span></span></div>
+  </div>
+</div>${dock(`I'm on board`,'ride',wrong('Wrong bus, or I missed it'))}</div></div>`,
+
+ride: () => rideView({leg:1, line:BUS, focus:'bus', color:'var(--bus)', vc:C.blue, who:art('04', person('ride')), step:'Step 2 of 5 · On bus '+S.bus, next:'transfer', off:'Tin Factory', time:'8:58', hint:'Move towards the front door. The skywalk to the metro starts at the stop.'}),
+metro: () => rideView({leg:3, line:METRO, focus:'metro', color:'var(--metro)', vc:C.purple, who:art('05', person('metro')), step:'Step 4 of 5 · On the Purple Line', next:'arrive', off:'Indiranagar', time:'9:20', hint:'Doors open on the left. Take the exit marked 100 Feet Road.'}),
+
+transfer: () => `<div class="scr">${sb('9:08',1)}<div class="map" style="height:220px">${routeMap(BUS.pts[6],'w2')}${mapUi()}</div>
+<div class="sheet">${sheetHead(2,'Step 3 of 5 · 5 min walk','Change to the Purple Line')}
+  <div class="card" style="background:#EFE3F4;color:#3B1752">${art('16', scene('skywalk'),'strip')}</div>
+  <div class="rows">
+    <div class="row"><span class="ico">1</span><span><b>Take the skywalk from the bus stop</b><span class="sub">Follow the purple metro signs to Benniganahalli.</span></span><span></span></div>
+    <div class="row">${art('21', spot('qr'),'i40')}<span><b>Buy a ticket to Indiranagar</b><span class="sub">About ₹20. QR ticket at the counter or on WhatsApp.</span></span><span></span></div>
+    <div class="row"><span class="ico brand">3</span><span><b>Platform towards Challaghatta <span class="kn">ಚಲ್ಲಘಟ್ಟ</span></b><span class="sub">The other platform goes to Whitefield.</span></span><span></span></div>
+    <div class="row dep"><span class="rb metro">Purple</span><span><b>Next train in about 9 min</b><span class="sub">Then every 5 to 8 minutes</span></span><span class="end"><small>${sched}</small></span></div>
+  </div>
+</div>${dock(`I'm on the train`,'metro',wrong())}</div></div>`,
+
+recover: () => `<div class="scr">${sb('8:51',1)}<div class="map" style="height:220px">${routeMap(BUS.pts[0])}${mapUi()}</div>
+<div class="sheet"><div class="grab"></div><div class="body">
+  <div class="head with-art"><div><h1 class="h1">Missed it? You still have good options.</h1><p class="sub">Both buses leave from the stop you're at.</p></div>${burst(92, art('07', person('shrug')))}</div>
+  <div class="opts">
+    <button class="opt sel" data-act="next">${art('09', veh('bus'),'veh')}<span><span class="tag">Best now</span><b>Next 500-D, in 9 min</b><span class="sub">${live}</span></span><span class="end">9:40<small>9 min later</small></span></button>
+    <button class="opt" data-act="alt">${art('09', veh('bus'),'veh')}<span><b>500-CA, in about 4 min</b><span class="sub">Also stops at Tin Factory ${sched}</span></span><span class="end">~9:35<small>4 min later</small></span></button>
+    <button class="opt" data-act="auto">${art('11', veh('auto'),'veh')}<span><b>Auto to the metro</b><span class="sub">About ₹120 · skips the bus</span></span><span class="end">~9:28<small>3 min sooner</small></span></button>
+  </div>
+  <p class="sub" style="font-size:14px">Rather not continue? A cab from here is ₹290–340 and gets in around 9:35.</p>
+</div><div class="dock"><button class="link" data-go="wait">Back to my trip</button></div></div></div>`,
+
+arrive: () => `<div class="scr">${sb(S.eta)}
+<div class="celebrate" data-n="24">${burst(178, art('06', person('arrive')))}</div>
+<div class="sheet"><div class="grab"></div><div class="body">
+  <div class="head"><h1 class="h1">You've arrived${S.late?'':', right on time'}</h1><p class="sub">Marathahalli to Indiranagar · ${S.eta}</p></div>
+  <div class="ticket alt">
+    <div class="tk-img short">${art('17', scene('office'))}</div>
+    <div class="tk-pad rows" style="padding-block:4px">
+      <div class="row" style="grid-template-columns:minmax(0,1fr) auto"><span><b>Door to door</b><span class="sub">Left at 8:42</span></span><span class="end">${49+S.late} min</span></div>
+      <div class="row" style="grid-template-columns:minmax(0,1fr) auto"><span><b>You paid</b><span class="sub">Bus ₹25 + Metro ₹20</span></span><span class="end">₹45</span></div>
+    </div>
+    <div class="cut"></div>
+    <div class="tk-pad" style="color:var(--mint-ink)"><b style="display:block">About ₹250 less than a cab</b>A cab would have taken 40 to 60 minutes today.</div>
+  </div>
+  <h2 class="h2">How did it feel?</h2>
+  <div class="feel" style="margin-top:-6px">${['Easy','Okay','Stressful'].map(f=>`<button data-feel="${f}" aria-pressed="${S.feel===f}">${f}</button>`).join('')}</div>
+  ${S.saved?`<div class="rows"><div class="row"><span class="ico done">${ic('check')}</span><span><b>Saved as Work commute</b><span class="sub">It's on your home screen with tomorrow's leave-by time.</span></span><span></span></div></div>`:''}
+</div><div class="dock">${S.saved?`<button class="btn" data-go="home">Done</button>`:`<button class="btn" data-act="save">${ic('save')} Save this trip</button><button class="link" data-go="home">Not now</button>`}</div></div></div>`
+};
+
+function rideView(o){
+  const n = o.line.stops.length-1, left = n-S.ride, P = o.line.pts, i = S.ride;
+  const a = P[i+1] ? P[i] : P[i-1], b = P[i+1] || P[i];
+  const ang = Math.atan2(b[1]-a[1], b[0]-a[0]) * 180/Math.PI;
+  const list = o.line.stops.map((s,k)=>`<div class="stop ${k<i?'past':k===i?'here':''} ${k===n?'last':''}" style="--c:${o.color}"><i></i><span>${s}</span>${k===n?'<small>Get off here</small>':''}</div>`).join('');
+  const title = left===0 ? `This is ${o.off}. Get off now.` : left===1 ? `Get off at the next stop` : `Get off in ${left} stops`;
+  const sub = left>1 ? `at ${o.off}` : '';
+  const note = left<=1
+    ? `<div class="banner sun big">${ic('bell')}<span><b>${o.off} is ${left?'next':'here'}</b>${o.hint}</span></div>`
+    : `<div class="banner">${art('22', spot('buzz'),'i40')}<span><b>You can put your phone away</b>We'll buzz you one stop before ${o.off}.</span></div>`;
+  return `<div class="scr">${sb(o.time,1)}<div class="map" style="height:230px">${routeMap(P[i],o.focus,{c:o.vc,ang})}${mapUi()}</div>
+    <div class="sheet">${sheetHead(o.leg,o.step,title,sub,o.who)}${note}<div class="stops">${list}</div></div>${dock(`I got off at ${o.off}`,o.next,wrong())}</div></div>`;
+}
+
+/* ---------- navigation ---------- */
+const phone = document.getElementById('phone'), stagesEl = document.getElementById('stages'), noteEl = document.getElementById('note');
+const lbl = document.getElementById('lbl');
+const setLabels = () => document.body.classList.toggle('labels', lbl.checked);
+lbl.addEventListener('change', setLabels); setLabels();
+
+function render(){
+  const keep = phone.querySelector('.sheet .body, .scr > .body'), y = keep ? keep.scrollTop : 0, same = phone.dataset.s===S.screen;
+  phone.innerHTML = V[S.screen](); phone.dataset.s = S.screen;
+  if(same){ const b = phone.querySelector('.sheet .body, .scr > .body'); if(b) b.scrollTop = y; }
+  const st = STAGES.find(s=>s.id===S.screen);
+  stagesEl.innerHTML = STAGES.map(s=>`<button data-go="${s.id}" aria-current="${s.id===S.screen}"><b>${s.stage}</b><span>${s.q}</span></button>`).join('');
+  const ns = [...new Set([...phone.querySelectorAll('[data-n]')].map(e=>e.dataset.n))];
+  const main = STAGES.filter(s=>!s.branch), mi = main.findIndex(s=>s.id===S.screen);
+  noteEl.innerHTML = `<span class="eyebrow">${st.stage} · the rider asks</span><h2>${st.q}</h2>
+    <dl><div class="new"><dt>What changed in this direction</dt><dd>${st.v2}</dd></div>
+    <div><dt>Illustrations on this screen</dt><dd><ul class="ill-list">${ns.map(n=>`<li><b>#${n}</b>${LIST[n][1]}</li>`).join('')}</ul></dd></div>
+    <div><dt>How the screen answers</dt><dd>${st.a}</dd></div></dl>
+    <div class="pager"><button data-go="${mi>0?main[mi-1].id:''}" ${mi>0?'':'disabled'}>Back</button><button data-go="${st.branch?'wait':mi<main.length-1?main[mi+1].id:''}" ${st.branch||mi<main.length-1?'':'disabled'}>${st.branch?'Resume trip':'Next'} ${ic('arrow')}</button></div>`;
+}
+
+function go(id, keepHash){
+  if(!V[id]) return;
+  clearInterval(timer);
+  if(id==='home'){ Object.assign(S,{bus:'500-D',busMins:6,eta:'9:31',late:0,liveBus:true,saved:false,feel:null}); }
+  S.screen = id; S.ride = 0;
+  render();
+  if(id==='ride'||id==='metro'){
+    const n = (id==='ride'?BUS:METRO).stops.length-1;
+    timer = setInterval(()=>{ if(S.ride<n){ S.ride++; render(); } else clearInterval(timer); }, 1800);
+  }
+  if(!keepHash){ try{ history.replaceState(null,'','#'+id); }catch(e){} }
+}
+
+document.addEventListener('click', e=>{
+  const g = e.target.closest('[data-go]'); if(g){ if(g.dataset.go) go(g.dataset.go); return; }
+  const a = e.target.closest('[data-act]');
+  if(a){
+    const k = a.dataset.act;
+    if(k==='next'){ Object.assign(S,{bus:'500-D',busMins:9,eta:'9:40',late:9,liveBus:true}); go('wait'); }
+    if(k==='alt'){ Object.assign(S,{bus:'500-CA',busMins:4,eta:'9:35',late:4,liveBus:false}); go('wait'); }
+    if(k==='auto'){ Object.assign(S,{eta:'9:28',late:0}); go('transfer'); }
+    if(k==='save'){ S.saved = true; render(); }
+    return;
+  }
+  const f = e.target.closest('[data-feel]'); if(f){ S.feel = f.dataset.feel; render(); }
+});
+window.addEventListener('hashchange', ()=>go(location.hash.slice(1), true));
+go(V[location.hash.slice(1)] ? location.hash.slice(1) : 'home', true);
+</script>
+</html>
